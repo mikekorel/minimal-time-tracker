@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.mikekorel.timetracker"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.mikekorel.timetracker"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -69,10 +69,12 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    implementation("com.google.dagger:hilt-android:2.44")
+    implementation("com.google.dagger:hilt-android:2.44.2")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
 
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
+    implementation("androidx.compose.material:material:1.5.4")
 }
 
 // Allow references to generated code
