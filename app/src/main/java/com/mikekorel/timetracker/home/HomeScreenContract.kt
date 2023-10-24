@@ -13,11 +13,14 @@ interface HomeScreenContract {
         object OnClickCreate: Event
         object OnBackPressedWhenSheetVisible: Event
         object OnAddClicked : Event
+        data class OnItemClicked(val itemClicked: UserActivity) : Event
     }
 
     data class State(
         val name: String = "",
-        val activities: List<UserActivity> = listOf(),
+        val activityList: List<UserActivity> = listOf(),
+        val activeActivity: UserActivity? = null,
+        val activeTime: Long? = null,
 
         val sheetData: SheetData = SheetData(),
 

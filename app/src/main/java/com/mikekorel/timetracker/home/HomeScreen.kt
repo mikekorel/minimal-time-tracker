@@ -2,8 +2,12 @@ package com.mikekorel.timetracker.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -14,17 +18,12 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -61,13 +60,17 @@ fun HomeScreen(
             }
         }
     }
-    
+
     HomeScreenContent(
         currState = state.value,
         onEvent = viewModel::onEvent
     )
 
-    AddActivityBottomSheet(data = state.value.sheetData, onEvent = viewModel::onEvent, state = bsState)
+    AddActivityBottomSheet(
+        data = state.value.sheetData,
+        onEvent = viewModel::onEvent,
+        state = bsState
+    )
 }
 
 @Composable
@@ -76,26 +79,55 @@ fun HomeScreenContent(
     onEvent: (Event) -> Unit,
 ) {
     Box(
-        Modifier.fillMaxSize()
+        Modifier
+            .fillMaxSize()
             .background(Color.White)
     ) {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 128.dp),
-            modifier = Modifier.align(Alignment.TopStart),
-
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.TopStart)
         ) {
-            items(currState.activities) { activity ->
-                Text(
-                    text = activity.name,
-                    modifier = Modifier.padding(8.dp)
-                        .background(Color.Green)
-                )
+            if (currState.activeActivity != null) {
+                Row(modifier = Modifier
+                    .padding(vertical = 16.dp, horizontal = 8.dp)
+                    .background(Color.Cyan)
+                ) {
+                    Text(
+                        text = currState.activeActivity.name,
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                onEvent(Event.OnItemClicked(currState.activeActivity))
+                            }
+                    )
+                    Text(text = currState.activeTime.toString())
+                    Text(text = "   Total: ${currState.activeActivity.totalTimeActive}")
+                }
+            }
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 128.dp),
+            ) {
+                items(currState.activityList) { activity ->
+                    val isActive = activity != currState.activeActivity
+                    Text(
+                        text = activity.name,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .background(if (!isActive) Color.Green else Color.Magenta)
+                            .clickable {
+                                onEvent(Event.OnItemClicked(activity))
+                            }
+                            .padding(16.dp)
+                    )
+                }
             }
         }
 
         Button(
-            onClick = { onEvent(Event.OnAddClicked)},
-            modifier = Modifier.align(Alignment.BottomEnd)
+            onClick = { onEvent(Event.OnAddClicked) },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
                 .padding(4.dp)
         ) {
             Text("ADD")
