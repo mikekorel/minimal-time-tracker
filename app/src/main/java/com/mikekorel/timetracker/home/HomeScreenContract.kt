@@ -8,7 +8,6 @@ import com.mikekorel.timetracker.models.UserActivity
 interface HomeScreenContract {
 
     sealed interface Event: UiEvent {
-        data class OnNameChange(val newName: String): Event
         data class OnActivityNameChange(val newActName: String): Event
         object OnClickCreate: Event
         object OnBackPressedWhenSheetVisible: Event
@@ -17,12 +16,11 @@ interface HomeScreenContract {
     }
 
     data class State(
-        val name: String = "",
         val activityList: List<UserActivity> = listOf(),
         val activeActivity: UserActivity? = null,
         val activeTime: Long? = null,
 
-        val sheetData: SheetData = SheetData(),
+        val sheetActivityToCreate: UserActivity = UserActivity(),
 
         override var isLoading: Boolean = false,
         override var hasError: Boolean = false,

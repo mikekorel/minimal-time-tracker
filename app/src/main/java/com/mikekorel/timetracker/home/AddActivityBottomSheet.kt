@@ -18,26 +18,27 @@ import com.mikekorel.timetracker.models.UserActivity
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AddActivityBottomSheet(
-    data: SheetData,
+    sheetActivity: UserActivity,
     state: ModalBottomSheetState,
     onEvent: (Event) -> Unit,
+    screenContent: @Composable () -> Unit,
 ) {
     ModalBottomSheetLayout(
         sheetContent = {
-            SheetContent(state = data, onEvent = onEvent)
+            SheetContent(sheetActivity = sheetActivity, onEvent = onEvent)
         },
-        content = { },
+        content = screenContent,
         sheetState = state
     )
 }
 
 @Composable
 fun ColumnScope.SheetContent(
-    state: SheetData,
+    sheetActivity: UserActivity,
     onEvent: (Event) -> Unit,
 ) {
     TextField(
-        value = state.newActivity.name,
+        value = sheetActivity.name,
         onValueChange = {
             onEvent(Event.OnActivityNameChange(it))
         },
@@ -55,14 +56,8 @@ fun ColumnScope.SheetContent(
 @Preview(showSystemUi = true)
 @Composable
 fun SheetPreview() {
-    val state = SheetData(
-        UserActivity("Mike")
-    )
+    val sheetActivity = UserActivity("Mike")
     Column {
-        SheetContent(state = state, onEvent = { })
+        SheetContent(sheetActivity = sheetActivity, onEvent = { })
     }
 }
-
-data class SheetData(
-    val newActivity: UserActivity = UserActivity()
-)

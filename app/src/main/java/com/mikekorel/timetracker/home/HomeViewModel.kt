@@ -17,16 +17,15 @@ class HomeViewModel @Inject constructor() : CoreViewModel<Event, State, Effect>(
     override suspend fun handleEvent(event: Event) {
         with(event) {
             when (this) {
-                is Event.OnNameChange -> {
-                    setState { copy(name = newName) }
-                }
-
                 is Event.OnActivityNameChange -> {
-                    setState { copy(sheetData = sheetData.copy(newActivity = UserActivity(newActName))) }
+                    setState { copy(sheetActivityToCreate = sheetActivityToCreate.copy(name = newActName)) }
                 }
 
                 Event.OnClickCreate -> {
-                    setState { copy(activityList = activityList.plus(sheetData.newActivity.copy())) }
+                    setState { copy(
+                        activityList = activityList.plus(sheetActivityToCreate),
+                        sheetActivityToCreate = UserActivity()
+                    ) }
                 }
 
                 Event.OnBackPressedWhenSheetVisible -> {
@@ -57,7 +56,7 @@ class HomeViewModel @Inject constructor() : CoreViewModel<Event, State, Effect>(
         timer?.cancel()
         timer = null
         if (activeItemWasPressed) {
-            setState { copy(activeActivity = null ) }
+            setState { copy(activeActivity = null) }
         } else {
             // if a non-active activity was pressed, start it
             setState { copy(activeActivity = itemClicked) }

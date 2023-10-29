@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,10 +29,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mikekorel.timetracker.common.collectAsEffect
 import com.mikekorel.timetracker.home.HomeScreenContract.Event
 import com.mikekorel.timetracker.home.HomeScreenContract.State
+import com.mikekorel.timetracker.models.UserActivity
 import com.mikekorel.timetracker.ui.theme.TimeTrackerTheme
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
@@ -61,15 +61,16 @@ fun HomeScreen(
         }
     }
 
-    HomeScreenContent(
-        currState = state.value,
-        onEvent = viewModel::onEvent
-    )
-
     AddActivityBottomSheet(
-        data = state.value.sheetData,
+        sheetActivity = state.value.sheetActivityToCreate,
         onEvent = viewModel::onEvent,
-        state = bsState
+        state = bsState,
+        screenContent = {
+            HomeScreenContent(
+                currState = state.value,
+                onEvent = viewModel::onEvent
+            )
+        }
     )
 }
 
@@ -89,9 +90,10 @@ fun HomeScreenContent(
                 .align(Alignment.TopStart)
         ) {
             if (currState.activeActivity != null) {
-                Row(modifier = Modifier
-                    .padding(vertical = 16.dp, horizontal = 8.dp)
-                    .background(Color.Cyan)
+                Row(
+                    modifier = Modifier
+                        .padding(vertical = 16.dp, horizontal = 8.dp)
+                        .background(Color.Cyan)
                 ) {
                     Text(
                         text = currState.activeActivity.name,
@@ -124,6 +126,15 @@ fun HomeScreenContent(
             }
         }
 
+        if (currState.activityList.isEmpty()) {
+            Text(
+                text = "Start by adding a new activity to track",
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(32.dp)
+            )
+        }
+
         Button(
             onClick = { onEvent(Event.OnAddClicked) },
             modifier = Modifier
@@ -138,8 +149,43 @@ fun HomeScreenContent(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun MainActivityContentPreview() {
+private fun NoActivitiesPreview() {
+    val mockState = State()
     TimeTrackerTheme {
-        HomeScreen()
+        HomeScreenContent(
+            currState = mockState,
+            onEvent = { }
+        )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun WithActivitiesPreview() {
+    val mockActive = UserActivity(name = "Cinema")
+    val mockState = State(
+        activityList = listOf(
+            UserActivity(
+                name = "Work",
+            ),
+            UserActivity(
+                name = "Rest",
+            ),
+            UserActivity(
+                name = "Games",
+            ),
+            UserActivity(
+                name = "Gym",
+            ),
+            mockActive
+        ),
+        activeActivity = mockActive,
+        activeTime = 36,
+    )
+    TimeTrackerTheme {
+        HomeScreenContent(
+            currState = mockState,
+            onEvent = { }
+        )
     }
 }
