@@ -26,6 +26,7 @@ class HomeViewModel @Inject constructor() : CoreViewModel<Event, State, Effect>(
                         activityList = activityList.plus(sheetActivityToCreate),
                         sheetActivityToCreate = UserActivity()
                     ) }
+                    setEffect { Effect.ShowOrHideSheet(false) }
                 }
 
                 Event.OnBackPressedWhenSheetVisible -> {
